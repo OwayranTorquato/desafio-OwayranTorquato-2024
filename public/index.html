@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+        <h1 class="text-2xl font-bold mb-4">Zoológico</h1>
+        <form id="animalForm" class="space-y-4">
+            <div>
+                <label for="animal" class="block text-sm font-medium text-gray-700">Espécie do Animal:</label>
+                <input type="text" id="animal" name="animal" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+            </div>
+
+            <div>
+                <label for="quantidade" class="block text-sm font-medium text-gray-700">Quantidade:</label>
+                <input type="number" id="quantidade" name="quantidade" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Verificar Recintos
+            </button>
+        </form>
+
+        <div id="result" class="mt-6"></div>
+    </div>
+
+    <script>
+        document.getElementById('animalForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const animal = document.getElementById('animal').value;
+            const quantidade = parseInt(document.getElementById('quantidade').value);
+
+            fetch('/api/analisa-recintos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ animal, quantidade }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                if (data.erro) {
+                    resultDiv.innerHTML = `<p class="text-red-500">${data.erro}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p class="font-bold">Recintos Viáveis:</p><ul class="list-disc pl-5">${data.recintosViaveis.map(r => `<li>${r}</li>`).join('')}</ul>`;
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+            });
+        });
+    </script>
+</body>
+</html>
